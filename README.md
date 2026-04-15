@@ -50,9 +50,8 @@ realestate-lakehouse-project/
 ├── sql/                         # SQL queries for KPIs
 │   └── kpi_queries.sql
 │
-├── README.md
-│
-└── (ignored files like debug.log should NOT be committed)
+└── README.md
+
 ```
 
 ---
@@ -79,6 +78,24 @@ realestate-lakehouse-project/
   * Gold → analytics
 
 👉 Purpose: Execution + demonstration
+
+---
+
+## 📁 Scripts/
+
+* Additional Python scripts
+* Utility or problem-solving code
+
+👉 Purpose: Support scripts (not core pipeline)
+
+---
+
+## 📁 docs/
+
+* Contains reference documents
+* Project plan + dataset summary
+
+👉 Purpose: Understanding before coding
 
 ---
 
@@ -122,31 +139,11 @@ This is the **real project logic** (not notebooks).
 
 ---
 
-## 📁 Scripts/
-
-* Additional Python scripts
-* Utility or problem-solving code
-
-👉 Purpose: Support scripts (not core pipeline)
-
----
-
-## 📁 docs/
-
-* Contains reference documents
-* Project plan + dataset summary
-
-👉 Purpose: Understanding before coding
-
----
-
 # ⚠️ Important Notes
 
 * Folder names must match exactly (case-sensitive in some systems)
 * `Data/Raw` vs `data/raw` → don’t mix randomly
 * Do NOT commit unnecessary files like `debug.log`
-
----
 
 ---
 
