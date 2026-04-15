@@ -22,17 +22,20 @@ We process a **7-table Real Estate dataset** to generate insights like:
 ```
 realestate-lakehouse-project/
 │
-├── data/
-│   └── raw/                     # All 7 CSV input files
+├── Data/
+│   └── Raw/                     # All 7 CSV input files
+│
+├── Notebooks/                   # Execution layer (Databricks)
+│   ├── 01_bronze.ipynb
+│   ├── 02_silver.ipynb
+│   └── 03_gold.ipynb
+│
+├── Scripts/
+│   └── solution.py
 │
 ├── docs/                        # Reference documents
 │   ├── real_estate_dataset_summary.pdf
 │   └── real_estate_project_plan.pdf
-│
-├── notebooks/                   # Execution layer (Databricks)
-│   ├── 01_bronze.ipynb
-│   ├── 02_silver.ipynb
-│   └── 03_gold.ipynb
 │
 ├── pipeline/                    # Core logic (clean, modular code)
 │   ├── bronze/
@@ -44,24 +47,106 @@ realestate-lakehouse-project/
 │   └── utils/
 │       └── common.py
 │
-├── screenshots/                 # Output proof for submission
-│
-├── scripts/
-│   └── solution.py
-│
 ├── sql/                         # SQL queries for KPIs
 │   └── kpi_queries.sql
 │
-└── README.md
+├── README.md
+│
+└── (ignored files like debug.log should NOT be committed)
 ```
 
 ---
 
-# 🧠 Why This Structure Exists
+# 🧠 Why This Structure Exists (Don’t Ignore This)
 
-* Separates **data, logic, execution, and analytics**
-* Aligns with **Medallion Architecture requirements** 
-* Enables **clean team collaboration using Git** 
+## 📁 Data/Raw/
+
+* Stores original CSV files
+* No modifications allowed
+* Used for Bronze ingestion
+
+👉 Purpose: Maintain **raw source of truth**
+
+---
+
+## 📁 Notebooks/
+
+* Used to **run pipeline step-by-step** in Databricks
+* Each notebook represents a layer:
+
+  * Bronze → load data
+  * Silver → clean + transform
+  * Gold → analytics
+
+👉 Purpose: Execution + demonstration
+
+---
+
+## 📁 pipeline/
+
+This is the **real project logic** (not notebooks).
+
+### bronze/ingestion.py
+
+* Reads CSVs
+* Adds audit columns
+* Writes Bronze Delta tables
+
+### silver/transformation.py
+
+* Cleans data (nulls, duplicates)
+* Performs joins
+* Implements MERGE
+* Handles schema evolution
+
+### gold/analytics.py
+
+* Builds KPI tables
+* Uses SQL + window functions
+* Generates insights
+
+### utils/common.py
+
+* Shared helper functions
+
+👉 Purpose: Clean, reusable, production-style code
+
+---
+
+## 📁 sql/
+
+* Contains SQL queries for KPIs
+* Used in Gold layer
+
+👉 Purpose: Separate SQL logic from Python
+
+---
+
+## 📁 Scripts/
+
+* Additional Python scripts
+* Utility or problem-solving code
+
+👉 Purpose: Support scripts (not core pipeline)
+
+---
+
+## 📁 docs/
+
+* Contains reference documents
+* Project plan + dataset summary
+
+👉 Purpose: Understanding before coding
+
+---
+
+# ⚠️ Important Notes
+
+* Folder names must match exactly (case-sensitive in some systems)
+* `Data/Raw` vs `data/raw` → don’t mix randomly
+* Do NOT commit unnecessary files like `debug.log`
+
+---
 
 ---
 
