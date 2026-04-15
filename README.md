@@ -22,10 +22,12 @@ We process a **7-table Real Estate dataset** to generate insights like:
 ```
 realestate-lakehouse-project/
 │
-├── README.md
-│
 ├── data/
 │   └── raw/                     # All 7 CSV input files
+│
+├── docs/                        # Reference documents
+│   ├── real_estate_dataset_summary.pdf
+│   └── real_estate_project_plan.pdf
 │
 ├── notebooks/                   # Execution layer (Databricks)
 │   ├── 01_bronze.ipynb
@@ -35,24 +37,22 @@ realestate-lakehouse-project/
 ├── pipeline/                    # Core logic (clean, modular code)
 │   ├── bronze/
 │   │   └── ingestion.py
-│   ├── silver/
-│   │   └── transformation.py
 │   ├── gold/
 │   │   └── analytics.py
+│   ├── silver/
+│   │   └── transformation.py
 │   └── utils/
 │       └── common.py
+│
+├── screenshots/                 # Output proof for submission
+│
+├── scripts/
+│   └── solution.py
 │
 ├── sql/                         # SQL queries for KPIs
 │   └── kpi_queries.sql
 │
-├── screenshots/                 # Output proof for submission
-│
-├── docs/                        # Reference documents
-│   ├── real_estate_project_plan.pdf
-│   └── real_estate_dataset_summary.pdf
-│
-└── scripts/
-    └── solution.py
+└── README.md
 ```
 
 ---
