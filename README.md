@@ -36,7 +36,7 @@ Before touching any code, do the following:
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone <your-repo-link>
+git clone <[your-repo-link](https://github.com/viveksadhucodes/realestate-lakehouse-project>
 cd realestate-lakehouse-project
 ```
 
