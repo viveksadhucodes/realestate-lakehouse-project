@@ -4,10 +4,10 @@
 
 This project aims to build an **end-to-end Data Engineering pipeline** using:
 
-- PySpark
-- Delta Lake
-- SQL
-- Medallion Architecture (Bronze → Silver → Gold)
+* PySpark
+* Delta Lake
+* SQL
+* Medallion Architecture (Bronze → Silver → Gold)
 
 We will process a **Real Estate dataset (7 tables)** and generate business insights such as revenue trends, agent performance, and property demand.
 
@@ -36,7 +36,7 @@ Before touching any code, do the following:
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone <https://github.com/viveksadhucodes/realestate-lakehouse-project>
+git clone https://github.com/viveksadhucodes/realestate-lakehouse-project
 cd realestate-lakehouse-project
 ```
 
@@ -48,95 +48,145 @@ You are NOT allowed to start coding yet.
 
 Read these two files carefully:
 
-- 📄 `real_estate_project_plan.pdf` → Execution plan (Day 1–5)
-- 📄 `real_estate_dataset_summary.pdf` → Dataset + schema details
+* 📄 `real_estate_project_plan.pdf` → Execution plan (Day 1–5)
+* 📄 `real_estate_dataset_summary.pdf` → Dataset + schema details
 
 ---
 
 ## 3️⃣ What You Should Understand After Reading
 
-If you don’t understand these, you’re already behind:
-
 ### 🔹 Dataset Understanding
 
-- What are the 7 tables?
-- Which is the **main fact table**? (transactions)
-- What are the join keys?
-  - customer_id
-  - property_id
-  - agent_id
-  - listing_id
+* 7 tables in total
+* Main fact table → **transactions**
+
+### 🔹 Key Join Columns
+
+* customer_id
+* property_id
+* agent_id
+* listing_id
 
 ---
 
 ### 🔹 Architecture Understanding
 
-- What is Bronze, Silver, Gold?
-- Why Bronze has no transformations
-- Why Silver handles cleaning + joins
-- Why Gold contains KPIs
+* Bronze → Raw data
+* Silver → Cleaning + joins
+* Gold → KPIs
 
 ---
 
 ### 🔹 Pipeline Flow
 
-- How data moves:
+```
+CSV → Bronze → Silver → Gold
+```
 
-  ```
-  CSV → Bronze → Silver → Gold
-  ```
+---
+
+# 🧩 ER Diagram (REFERENCE)
+
+This ER diagram is already designed for the project.
+Use this as the **single source of truth for all joins and relationships**.
+
+```mermaid
+erDiagram
+
+    TRANSACTIONS {
+        int transaction_id PK
+        int customer_id FK
+        int property_id FK
+        int agent_id FK
+        int listing_id FK
+    }
+
+    CUSTOMERS {
+        int customer_id PK
+    }
+
+    PROPERTIES {
+        int property_id PK
+    }
+
+    LISTINGS {
+        int listing_id PK
+        int property_id FK
+        int agent_id FK
+    }
+
+    AGENTS {
+        int agent_id PK
+    }
+
+    INTERACTIONS {
+        int interaction_id PK
+        int customer_id FK
+        int property_id FK
+    }
+
+    CUSTOMER_MONTHLY_METRICS {
+        int customer_id FK
+    }
+
+    TRANSACTIONS ||--o{ CUSTOMERS : "belongs to"
+    TRANSACTIONS ||--o{ PROPERTIES : "involves"
+    TRANSACTIONS ||--o{ AGENTS : "handled by"
+    TRANSACTIONS ||--o{ LISTINGS : "linked to"
+
+    LISTINGS ||--o{ PROPERTIES : "for"
+    LISTINGS ||--o{ AGENTS : "managed by"
+
+    INTERACTIONS ||--o{ CUSTOMERS : "by"
+    INTERACTIONS ||--o{ PROPERTIES : "on"
+
+    CUSTOMER_MONTHLY_METRICS ||--o{ CUSTOMERS : "aggregates"
+```
 
 ---
 
 ## 4️⃣ Team Discussion (15–20 mins)
 
-All members must sit together and:
+All members must:
 
-- Confirm dataset is correct
-- Discuss relationships between tables
-- Draw ER diagram (on paper or tool)
-- Agree on naming conventions (snake_case)
+* Confirm dataset
+* Understand relationships using the ER diagram
+* Clarify any confusion in joins before coding
+* Agree naming conventions (snake_case)
 
 ---
 
 ## 5️⃣ Role Assignment (STRICT)
 
-Each member must own ONE layer:
-
 ### 👤 Member 1 – Ingestion Engineer
 
-- Handles Bronze layer
-- Loads all CSV files
-- Adds audit columns
-
----
+* Bronze layer
+* Load CSV files
+* Add audit columns
 
 ### 👤 Member 2 – Transformation Engineer
 
-- Handles Silver layer
-- Cleaning + joins
-- MERGE + schema evolution
-
----
+* Silver layer
+* Cleaning + joins
+* MERGE + schema evolution
 
 ### 👤 Member 3 – Analytics Engineer
 
-- Handles Gold layer
-- KPIs + SQL + window functions
-- Documentation + PPT
+* Gold layer
+* KPIs + SQL + window functions
+* Documentation + PPT
 
 ---
 
 ## 6️⃣ Setup Databricks Environment
 
-- Create workspace
-- Upload CSV files to DBFS:
+* Upload CSVs to:
 
   ```
-  /FileStore/project/raw/
+  /volume/default/raw/
   ```
 
-- Create folder structure:
+* Create folders:
 
   ```
   /raw/
@@ -149,24 +199,19 @@ Each member must own ONE layer:
 
 # ⚠️ Important Rules
 
-- ❌ Do NOT start coding before understanding dataset
-- ❌ Do NOT assume column names (use actual CSV columns like deal_price, deal_date)
-- ❌ Do NOT skip ER diagram
-- ❌ Do NOT copy blindly from tutorials
+* ❌ Do NOT start coding without understanding dataset
+* ❌ Do NOT assume column names
+* ❌ Do NOT ignore ER diagram
+* ❌ Do NOT copy blindly
 
 ---
 
 # 🧠 Goal of Day 1
 
-By the end of Day 1, you should have:
-
-- Clear understanding of dataset
-- ER diagram ready
-- Roles assigned
-- Databricks setup complete
-
-If this is not done properly:
-👉 The rest of the project will become difficult
+* Dataset understanding
+* ER diagram clarity
+* Roles assigned
+* Environment setup
 
 ---
 
