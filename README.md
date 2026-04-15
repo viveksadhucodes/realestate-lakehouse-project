@@ -2,36 +2,70 @@
 
 ## 🚀 Project Overview
 
-This project aims to build an **end-to-end Data Engineering pipeline** using:
+This project builds an **end-to-end Data Engineering pipeline** using:
 
 * PySpark
 * Delta Lake
 * SQL
 * Medallion Architecture (Bronze → Silver → Gold)
 
-We will process a **Real Estate dataset (7 tables)** and generate business insights such as revenue trends, agent performance, and property demand.
+We process a **7-table Real Estate dataset** to generate insights like:
+
+* Revenue trends
+* Agent performance
+* Property demand
 
 ---
 
-# 📂 Repository Structure
+# 📂 Project Structure (IMPORTANT)
 
 ```
 realestate-lakehouse-project/
 │
-├── Data/              # Raw CSV files
-├── Notebooks/         # Bronze, Silver, Gold notebooks
-├── Scripts/           # Python scripts (Delta operations etc.)
-├── Screenshots/       # Output screenshots
 ├── README.md
-├── real_estate_project_plan.pdf
-└── real_estate_dataset_summary.pdf
+│
+├── data/
+│   └── raw/                     # All 7 CSV input files
+│
+├── notebooks/                   # Execution layer (Databricks)
+│   ├── 01_bronze.ipynb
+│   ├── 02_silver.ipynb
+│   └── 03_gold.ipynb
+│
+├── pipeline/                    # Core logic (clean, modular code)
+│   ├── bronze/
+│   │   └── ingestion.py
+│   ├── silver/
+│   │   └── transformation.py
+│   ├── gold/
+│   │   └── analytics.py
+│   └── utils/
+│       └── common.py
+│
+├── sql/                         # SQL queries for KPIs
+│   └── kpi_queries.sql
+│
+├── screenshots/                 # Output proof for submission
+│
+├── docs/                        # Reference documents
+│   ├── real_estate_project_plan.pdf
+│   └── real_estate_dataset_summary.pdf
+│
+└── scripts/
+    └── solution.py
 ```
 
 ---
 
-# 📌 What You Should Do FIRST (Day 1 Instructions)
+# 🧠 Why This Structure Exists
 
-Before touching any code, do the following:
+* Separates **data, logic, execution, and analytics**
+* Aligns with **Medallion Architecture requirements** 
+* Enables **clean team collaboration using Git** 
+
+---
+
+# 📌 Day 1 Instructions (MANDATORY)
 
 ## 1️⃣ Clone the Repository
 
@@ -42,42 +76,40 @@ cd realestate-lakehouse-project
 
 ---
 
-## 2️⃣ Understand the Project (MANDATORY)
+## 2️⃣ Read Before Coding
 
-You are NOT allowed to start coding yet.
+Read:
 
-Read these two files carefully:
+* `docs/real_estate_project_plan.pdf`
+* `docs/real_estate_dataset_summary.pdf`
 
-* 📄 `real_estate_project_plan.pdf` → Execution plan (Day 1–5)
-* 📄 `real_estate_dataset_summary.pdf` → Dataset + schema details
+These define:
+
+* dataset structure
+* join keys
+* pipeline flow
+* cleaning rules
+
+If skipped:
+👉 your joins WILL break later
 
 ---
 
-## 3️⃣ What You Should Understand After Reading
+## 3️⃣ Understand Core Concepts
 
-### 🔹 Dataset Understanding
+### Dataset
 
-* 7 tables in total
-* Main fact table → **transactions**
+* 7 tables
+* Central fact table → **transactions**
 
-### 🔹 Key Join Columns
+### Keys
 
 * customer_id
 * property_id
 * agent_id
 * listing_id
 
----
-
-### 🔹 Architecture Understanding
-
-* Bronze → Raw data
-* Silver → Cleaning + joins
-* Gold → KPIs
-
----
-
-### 🔹 Pipeline Flow
+### Pipeline Flow
 
 ```
 CSV → Bronze → Silver → Gold
@@ -85,10 +117,7 @@ CSV → Bronze → Silver → Gold
 
 ---
 
-# 🧩 ER Diagram (REFERENCE)
-
-This ER diagram is already designed for the project.
-Use this as the **single source of truth for all joins and relationships**.
+# 🧩 ER Diagram (SOURCE OF TRUTH)
 
 ```mermaid
 erDiagram
@@ -145,63 +174,93 @@ erDiagram
 
 ---
 
-## 4️⃣ Team Discussion (15–20 mins)
+# 👥 Team Responsibilities
 
-All members must:
-
-* Confirm dataset
-* Understand relationships using the ER diagram
-* Clarify any confusion in joins before coding
-* Agree naming conventions (snake_case)
-
----
-
-## 5️⃣ Role Assignment (STRICT)
-
-### 👤 Member 1 – Ingestion Engineer
-
-* Bronze layer
-* Load CSV files
-* Add audit columns
-
-### 👤 Member 2 – Transformation Engineer
-
-* Silver layer
-* Cleaning + joins
-* MERGE + schema evolution
-
-### 👤 Member 3 – Analytics Engineer
-
-* Gold layer
-* KPIs + SQL + window functions
-* Documentation + PPT
+| Member   | Role                    | Files                              |
+| -------- | ----------------------- | ---------------------------------- |
+| Member 1 | Bronze (Ingestion)      | pipeline/bronze, 01_bronze.ipynb   |
+| Member 2 | Silver (Transformation) | pipeline/silver, 02_silver.ipynb   |
+| Member 3 | Gold (Analytics)        | pipeline/gold, 03_gold.ipynb, sql/ |
 
 ---
 
-## 6️⃣ Setup Databricks Environment
+# 🔄 Git Integration Workflow (USED IN THIS PROJECT)
 
-* Upload CSVs to:
-
-  ```
-  /volume/default/raw/
-  ```
-
-* Create folders:
-
-  ```
-  /raw/
-  /bronze/
-  /silver/
-  /gold/
-  ```
+Since Databricks Git integration is available, we follow a **direct Git workflow**.
 
 ---
 
-# ⚠️ Important Rules
+## 🚀 Setup (One-Time)
 
-* ❌ Do NOT start coding without understanding dataset
+In Databricks:
+
+* New → **Git Folder**
+* Paste repo URL
+* Authenticate GitHub
+* Clone repository
+
+---
+
+## 🔁 Daily Workflow
+
+### 1️⃣ Pull Latest Code
+
+```
+git pull origin main
+```
+
+---
+
+### 2️⃣ Work on Your Layer Only
+
+* Do NOT modify other members’ files
+* Stick to your assigned folder
+
+---
+
+### 3️⃣ Commit Changes
+
+```
+git add .
+git commit -m "Silver: implemented cleaning and joins"
+```
+
+---
+
+### 4️⃣ Push Changes
+
+```
+git push origin main
+```
+
+---
+
+## ⚠️ Conflict Prevention
+
+* Only ONE person edits a file at a time
+* Always pull before starting work
+* Push at end of session
+* Use meaningful commit messages
+
+---
+
+# 🧠 Project Execution Plan (Aligned with 5-Day Plan)
+
+* Day 1 → Setup + ER + roles
+* Day 2 → Bronze layer
+* Day 3 → Silver layer
+* Day 4 → Gold KPIs + Delta features
+* Day 5 → Full pipeline run + PPT
+
+(Strictly follow plan) 
+
+---
+
+# ⚠️ Rules
+
 * ❌ Do NOT assume column names
-* ❌ Do NOT ignore ER diagram
+* ❌ Do NOT skip ER diagram
+* ❌ Do NOT break pipeline for others
 * ❌ Do NOT copy blindly
 
 ---
@@ -210,17 +269,22 @@ All members must:
 
 * Dataset understanding
 * ER diagram clarity
-* Roles assigned
-* Environment setup
+* Role assignment
+* Databricks setup
 
 ---
 
 # 🧨 Final Note
 
-This project is NOT about writing code fast.
-It is about building a **correct, explainable pipeline**.
+This project is not about writing code fast.
 
-If you don’t understand what you are doing,
+It is about:
+
+* correct pipeline
+* clean transformations
+* clear explanation
+
+If you don’t understand your own pipeline,
 you will get exposed during the viva.
 
 ---
