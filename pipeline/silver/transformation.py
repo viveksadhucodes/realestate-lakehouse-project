@@ -88,7 +88,14 @@ def clean_properties(df):
     df = df.withColumn("property_type", lower(trim(col("property_type")))) \
            .withColumn("city", lower(trim(col("city")))) \
            .withColumn("price_per_sqm", col("list_price") / col("size_sqm")) \
-           .withColumn("property_age", year(current_date()) - col("year_built"))
+           .withColumn("property_age", year(current_date()) - col("year_built")) \
+           .withColumn(
+               "property_category",
+               when(col("list_price") < 5_000_000, "low")
+               .when(col("list_price") < 15_000_000, "mid")
+               .when(col("list_price") < 30_000_000, "high")
+               .otherwise("luxury")
+           )
 
     return df
 
@@ -122,11 +129,49 @@ def clean_agents(df):
 
 
 # =========================
+# LISTINGS (NEW - YOU MISSED THIS)
+# =========================
+from pyspark.sql.window import Window
+from pyspark.sql.functions import row_number, col
+
+def clean_listings(df):
+
+    df = df.filter(
+        col("listing_id").isNotNull() &
+        col("property_id").isNotNull() &
+        (col("listed_price") > 0) &
+        (col("days_on_market") >= 0)
+    )
+
+    # 🔥 Deduplicate by property_id (IMPORTANT FIX)
+    window = Window.partitionBy("property_id").orderBy(col("listed_price").desc())
+
+    df = df.withColumn("rn", row_number().over(window)) \
+           .filter(col("rn") == 1) \
+           .drop("rn")
+
+    df = df.fillna({
+        "listing_channel": "unknown"
+    })
+
+    df = df.withColumn("listing_channel", lower(trim(col("listing_channel"))))
+
+    return df
+
+
+# =========================
 # 🔥 FINAL FACT TABLE
 # =========================
-def build_silver_fact(trans, cust, prop, agent):
+def build_silver_fact(trans, cust, prop, agent, listings):
 
-    # SELECT REQUIRED COLUMNS ONLY (NO BRONZE JUNK)
+    # ensure base table is clean
+    trans = trans.dropDuplicates(["transaction_id"])
+
+    cust = cust.dropDuplicates(["customer_id"])
+    prop = prop.dropDuplicates(["property_id"])
+    agent = agent.dropDuplicates(["agent_id"])
+    listings = listings.dropDuplicates(["property_id"])  # critical
+
     trans = trans.select(
         "transaction_id",
         "customer_id",
@@ -154,7 +199,8 @@ def build_silver_fact(trans, cust, prop, agent):
         "property_type",
         col("city").alias("property_city"),
         "price_per_sqm",
-        "property_age"
+        "property_age",
+        "property_category"
     )
 
     agent = agent.select(
@@ -164,13 +210,22 @@ def build_silver_fact(trans, cust, prop, agent):
         "commission_category"
     )
 
-    # LEFT JOIN (NO DATA LOSS)
+    listings = listings.select(
+        "property_id",
+        "listing_channel",
+        "listed_price",
+        "days_on_market",
+        "sold_flag"
+    )
+
+    # ✅ CLEAN LEFT JOINS (NO ROW EXPLOSION NOW)
     df = trans \
         .join(cust, "customer_id", "left") \
         .join(prop, "property_id", "left") \
-        .join(agent, "agent_id", "left")
+        .join(agent, "agent_id", "left") \
+        .join(listings, "property_id", "left")
 
-    # CITY VARIATION (CORRECT LOGIC)
+    # CITY CONSISTENCY
     df = df.withColumn(
         "city_variation_flag",
         when(
@@ -181,5 +236,7 @@ def build_silver_fact(trans, cust, prop, agent):
         ).otherwise(0)
     )
 
-    # FINAL CLEAN RETURN (NO layer, NO junk)
+    # 🔥 FINAL SAFETY NET
+    df = df.dropDuplicates(["transaction_id"])
+
     return df
