@@ -205,53 +205,51 @@ CSV → Bronze → Silver → Gold
 erDiagram
 
     TRANSACTIONS {
-        int transaction_id PK
-        int customer_id FK
-        int property_id FK
-        int agent_id FK
-        int listing_id FK
+        string transaction_id PK
+        string customer_id FK
+        string property_id FK
+        string agent_id FK
     }
 
     CUSTOMERS {
-        int customer_id PK
+        string customer_id PK
     }
 
     PROPERTIES {
-        int property_id PK
+        string property_id PK
     }
 
     LISTINGS {
-        int listing_id PK
-        int property_id FK
-        int agent_id FK
+        string listing_id PK
+        string property_id FK
+        string agent_id FK
     }
 
     AGENTS {
-        int agent_id PK
+        string agent_id PK
     }
 
     INTERACTIONS {
-        int interaction_id PK
-        int customer_id FK
-        int property_id FK
+        string interaction_id PK
+        string customer_id FK
+        string property_id FK
     }
 
     CUSTOMER_MONTHLY_METRICS {
-        int customer_id FK
+        string customer_id FK
     }
 
     TRANSACTIONS ||--o{ CUSTOMERS : "belongs to"
     TRANSACTIONS ||--o{ PROPERTIES : "involves"
     TRANSACTIONS ||--o{ AGENTS : "handled by"
-    TRANSACTIONS ||--o{ LISTINGS : "linked to"
 
-    LISTINGS ||--o{ PROPERTIES : "for"
+    PROPERTIES ||--o{ LISTINGS : "listed as"
     LISTINGS ||--o{ AGENTS : "managed by"
 
-    INTERACTIONS ||--o{ CUSTOMERS : "by"
-    INTERACTIONS ||--o{ PROPERTIES : "on"
+    CUSTOMERS ||--o{ INTERACTIONS : "performs"
+    PROPERTIES ||--o{ INTERACTIONS : "receives"
 
-    CUSTOMER_MONTHLY_METRICS ||--o{ CUSTOMERS : "aggregates"
+    CUSTOMERS ||--o{ CUSTOMER_MONTHLY_METRICS : "aggregates"
 ```
 
 ---
