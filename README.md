@@ -1,5 +1,35 @@
 # 🏠 Real Estate Lakehouse Project
 
+<div align="center">
+
+### Build A Production-Style Medallion Lakehouse
+
+[![Data Engineering](https://img.shields.io/badge/Domain-Data%20Engineering-0A66C2?style=for-the-badge)](README.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Bronze%20%E2%86%92%20Silver%20%E2%86%92%20Gold-0E9F6E?style=for-the-badge)](README.md)
+[![Engine](https://img.shields.io/badge/Engine-PySpark-F97316?style=for-the-badge)](README.md)
+[![Storage](https://img.shields.io/badge/Storage-Delta%20Lake-7C3AED?style=for-the-badge)](README.md)
+
+</div>
+
+---
+
+## 🔎 Quick Navigation
+
+- [🚀 Project Overview](#-project-overview)
+- [📂 Project Structure (IMPORTANT)](#-project-structure-important)
+- [🧠 Why This Structure Exists (Don’t Ignore This)](#-why-this-structure-exists-dont-ignore-this)
+- [⚠️ Important Notes](#️-important-notes)
+- [📌 Day 1 Instructions (MANDATORY)](#-day-1-instructions-mandatory)
+- [🧩 ER Diagram (SOURCE OF TRUTH)](#-er-diagram-source-of-truth)
+- [👥 Team Responsibilities](#-team-responsibilities)
+- [🔄 Git Integration Workflow (USED IN THIS PROJECT)](#-git-integration-workflow-used-in-this-project)
+- [🧠 Project Execution Plan (Aligned with 5-Day Plan)](#-project-execution-plan-aligned-with-5-day-plan)
+- [⚠️ Rules](#️-rules)
+- [🧠 Goal of Day 1](#-goal-of-day-1)
+- [🧨 Final Note](#-final-note)
+
+---
+
 ## 🚀 Project Overview
 
 This project builds an **end-to-end Data Engineering pipeline** using:
