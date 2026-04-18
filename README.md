@@ -53,6 +53,27 @@ Project complete. The repository contains:
 
 ---
 
+## Interactive Start Here
+
+Pick what you want to do right now:
+
+- [Run the pipeline now](#how-to-run)
+- [Understand architecture quickly](#architecture)
+- [Inspect data quality controls](#data-quality-gates)
+- [Explore KPI outputs](#kpi-outputs)
+- [Open layer documentation](#documentation-index)
+
+### Choose Your Path
+
+| If you are... | Jump to | Outcome |
+|---|---|---|
+| Reviewer/Interviewer | [Project Overview](#project-overview) | Understand scope and business value fast |
+| Data Engineer | [Pipeline Implementation](#pipeline-implementation) | Inspect technical architecture and rules |
+| Analyst | [KPI Outputs](#kpi-outputs) | See analytics capabilities and metrics |
+| Teammate running demo | [How To Run](#how-to-run) | Execute notebooks in correct order |
+
+---
+
 ## Project Overview
 
 This project builds a production-style lakehouse workflow for a 7-table real estate dataset.
@@ -366,6 +387,27 @@ cd realestate-lakehouse-project
 
 Use Databricks (or compatible Spark environment) with Delta support.
 
+### Run Modes
+
+<details>
+<summary><strong>Mode A: Fast Demo (10-15 minutes)</strong></summary>
+
+1. Open notebooks in order: 01_bronze -> 02_silver -> 03_gold.
+2. Run key cells for table creation and final summary outputs.
+3. Show Gold KPI outputs and validation summary sections.
+
+</details>
+
+<details>
+<summary><strong>Mode B: Full Validation Run (30-45 minutes)</strong></summary>
+
+1. Run all cells in all three notebooks in sequence.
+2. Capture Bronze row counts and Silver validation report.
+3. Confirm duplicate, null, and business-rule checks.
+4. Execute Gold notebook KPI sections and optional SQL queries.
+
+</details>
+
 ### 3) Execute Notebooks in Order
 
 - Notebooks/01_bronze.ipynb
@@ -379,6 +421,15 @@ Check Bronze, Silver, and Gold schema outputs and validation sections in the not
 ### 5) Optional SQL Analysis
 
 Use sql/kpi_queries.sql for additional KPI slicing and reporting workflows.
+
+### Interactive Completion Checklist
+
+- [ ] Bronze tables created and record counts validated.
+- [ ] Silver dimension tables created.
+- [ ] silver_real_estate_fact created.
+- [ ] Silver validation checks reviewed.
+- [ ] Gold KPI outputs generated.
+- [ ] Optional SQL KPI checks executed.
 
 ---
 
@@ -428,6 +479,46 @@ This project demonstrates the full lifecycle of a lakehouse pipeline:
 - business-ready analytics
 
 The repository is now organized as a complete, handover-ready implementation.
+
+### Troubleshooting (Interactive)
+
+<details>
+<summary><strong>Problem: Silver record count drops unexpectedly</strong></summary>
+
+Check transaction filters in the Silver logic first:
+
+- deal_price > 0
+- commission_amount > 0
+- commission_amount < deal_price
+- deal_date and transaction_id not null
+
+Then run the dropped-record analysis in the Silver notebook summary section.
+
+</details>
+
+<details>
+<summary><strong>Problem: Join enrichment is low in Silver fact</strong></summary>
+
+Validate key integrity in Bronze data:
+
+- customer_id
+- property_id
+- agent_id
+
+Also verify listing deduplication logic is preserving one row per property_id.
+
+</details>
+
+<details>
+<summary><strong>Problem: Gold KPI output looks inconsistent</strong></summary>
+
+Confirm prerequisites:
+
+- Silver fact exists and is freshly generated.
+- Silver validation checks passed.
+- Notebook execution order was Bronze -> Silver -> Gold.
+
+</details>
 
 ### Next Technical Enhancements
 
