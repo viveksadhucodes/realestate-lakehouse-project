@@ -1,11 +1,11 @@
-# 🏠 Real Estate Lakehouse Project
+# Real Estate Lakehouse Project
 
 <div align="center">
 
-### Build A Production-Style Medallion Lakehouse
+### End-to-End Medallion Data Pipeline (Bronze -> Silver -> Gold)
 
-[![Data Engineering](https://img.shields.io/badge/Domain-Data%20Engineering-0A66C2?style=for-the-badge)](README.md)
-[![Architecture](https://img.shields.io/badge/Architecture-Bronze%20%E2%86%92%20Silver%20%E2%86%92%20Gold-0E9F6E?style=for-the-badge)](README.md)
+[![Domain](https://img.shields.io/badge/Domain-Data%20Engineering-0A66C2?style=for-the-badge)](README.md)
+[![Architecture](https://img.shields.io/badge/Pattern-Medallion-0E9F6E?style=for-the-badge)](README.md)
 [![Engine](https://img.shields.io/badge/Engine-PySpark-F97316?style=for-the-badge)](README.md)
 [![Storage](https://img.shields.io/badge/Storage-Delta%20Lake-7C3AED?style=for-the-badge)](README.md)
 
@@ -13,227 +13,132 @@
 
 ---
 
-## 🔎 Quick Navigation
+## Project Status
 
-- [🚀 Project Overview](#-project-overview)
-- [📂 Project Structure (IMPORTANT)](#-project-structure-important)
-- [🧠 Why This Structure Exists (Don’t Ignore This)](#-why-this-structure-exists-dont-ignore-this)
-- [⚠️ Important Notes](#️-important-notes)
-- [📌 Day 1 Instructions (MANDATORY)](#-day-1-instructions-mandatory)
-- [🧩 ER Diagram (SOURCE OF TRUTH)](#-er-diagram-source-of-truth)
-- [👥 Team Responsibilities](#-team-responsibilities)
-- [🔄 Git Integration Workflow (USED IN THIS PROJECT)](#-git-integration-workflow-used-in-this-project)
-- [🧠 Project Execution Plan (Aligned with 5-Day Plan)](#-project-execution-plan-aligned-with-5-day-plan)
-- [⚠️ Rules](#️-rules)
-- [🧠 Goal of Day 1](#-goal-of-day-1)
-- [🧨 Final Note](#-final-note)
+Project complete. The repository contains:
+
+- Full Bronze ingestion pipeline
+- Full Silver transformation and validation pipeline
+- Full Gold analytics/KPI pipeline
+- Executable notebooks for all three layers
+- SQL KPI query file
+- Layer-wise documentation
 
 ---
 
-## 🚀 Project Overview
+## Quick Navigation
 
-This project builds an **end-to-end Data Engineering pipeline** using:
-
-* PySpark
-* Delta Lake
-* SQL
-* Medallion Architecture (Bronze → Silver → Gold)
-
-We process a **7-table Real Estate dataset** to generate insights like:
-
-* Revenue trends
-* Agent performance
-* Property demand
+- [Project Overview](#project-overview)
+- [Final Repository Structure](#final-repository-structure)
+- [Data Sources](#data-sources)
+- [Architecture](#architecture)
+- [Pipeline Implementation](#pipeline-implementation)
+- [Notebook Flow](#notebook-flow)
+- [KPI Outputs](#kpi-outputs)
+- [How To Run](#how-to-run)
+- [Tech Stack](#tech-stack)
+- [Documentation Index](#documentation-index)
+- [Team Responsibilities](#team-responsibilities)
+- [References](#references)
 
 ---
 
-# 📂 Project Structure (IMPORTANT)
+## Project Overview
 
-```
+This project builds a production-style lakehouse workflow for a 7-table real estate dataset.
+
+Data moves through the medallion model:
+
+- Bronze: raw ingestion and audit metadata
+- Silver: cleaning, standardization, deduplication, and fact build
+- Gold: KPI modeling and analytics outputs
+
+Business questions addressed include:
+
+- Revenue trends across cities, categories, and time
+- Agent performance and ranking
+- Listing conversion and market speed
+- Customer purchase behavior and segmentation
+
+---
+
+## Final Repository Structure
+
+```text
 realestate-lakehouse-project/
-│
-├── Data/
-│   └── Raw/                     # All 7 CSV input files
-│
-├── Notebooks/                   # Execution layer (Databricks)
-│   ├── 01_bronze.ipynb
-│   ├── 02_silver.ipynb
-│   └── 03_gold.ipynb
-│
-├── Scripts/
-│   └── solution.py
-│
-├── docs/                        # Reference documents
-│   ├── real_estate_dataset_summary.pdf
-│   └── real_estate_project_plan.pdf
-│
-├── pipeline/                    # Core logic (clean, modular code)
-│   ├── bronze/
-│   │   └── ingestion.py
-│   ├── gold/
-│   │   └── analytics.py
-│   ├── silver/
-│   │   └── transformation.py
-│   └── utils/
-│       └── common.py
-│
-├── sql/                         # SQL queries for KPIs
-│   └── kpi_queries.sql
-│
-└── README.md
-
+|
+|-- Data/
+|   |-- Raw/
+|   |   |-- agents.csv
+|   |   |-- customer_monthly_metrics.csv
+|   |   |-- customers.csv
+|   |   |-- interactions.csv
+|   |   |-- listings.csv
+|   |   |-- properties.csv
+|   |   |-- transactions.csv
+|
+|-- docs/
+|   |-- real_estate_dataset_summary.pdf
+|   |-- real_estate_project_plan.pdf
+|
+|-- Notebooks/
+|   |-- 01_bronze.ipynb
+|   |-- 02_silver.ipynb
+|   |-- 03_gold.ipynb
+|
+|-- pipeline/
+|   |-- bronze/
+|   |   |-- ingestion.py
+|   |   |-- README.md
+|   |-- silver/
+|   |   |-- transformation.py
+|   |   |-- README.md
+|   |-- gold/
+|   |   |-- analytics.py
+|   |   |-- README.md
+|
+|-- sql/
+|   |-- kpi_queries.sql
+|
+|-- README.md
 ```
 
 ---
 
-# 🧠 Why This Structure Exists (Don’t Ignore This)
+## Data Sources
 
-## 📁 Data/Raw/
+Raw input tables used:
 
-* Stores original CSV files
-* No modifications allowed
-* Used for Bronze ingestion
+- agents
+- customers
+- properties
+- listings
+- interactions
+- transactions
+- customer_monthly_metrics
 
-👉 Purpose: Maintain **raw source of truth**
-
----
-
-## 📁 Notebooks/
-
-* Used to **run pipeline step-by-step** in Databricks
-* Each notebook represents a layer:
-
-  * Bronze → load data
-  * Silver → clean + transform
-  * Gold → analytics
-
-👉 Purpose: Execution + demonstration
+Raw files are treated as source-of-truth and are stored in Data/Raw.
 
 ---
 
-## 📁 Scripts/
+## Architecture
 
-* Additional Python scripts
-* Utility or problem-solving code
+```mermaid
+graph LR
+    A[Raw CSV Files] --> B[Bronze Layer]
+    B --> C[Silver Layer]
+    C --> D[Gold Layer]
 
-👉 Purpose: Support scripts (not core pipeline)
-
----
-
-## 📁 docs/
-
-* Contains reference documents
-* Project plan + dataset summary
-
-👉 Purpose: Understanding before coding
-
----
-
-## 📁 pipeline/
-
-This is the **real project logic** (not notebooks).
-
-### bronze/ingestion.py
-
-* Reads CSVs
-* Adds audit columns
-* Writes Bronze Delta tables
-
-### silver/transformation.py
-
-* Cleans data (nulls, duplicates)
-* Performs joins
-* Implements MERGE
-* Handles schema evolution
-
-### gold/analytics.py
-
-* Builds KPI tables
-* Uses SQL + window functions
-* Generates insights
-
-### utils/common.py
-
-* Shared helper functions
-
-👉 Purpose: Clean, reusable, production-style code
-
----
-
-## 📁 sql/
-
-* Contains SQL queries for KPIs
-* Used in Gold layer
-
-👉 Purpose: Separate SQL logic from Python
-
----
-
-# ⚠️ Important Notes
-
-* Folder names must match exactly (case-sensitive in some systems)
-* `Data/Raw` vs `data/raw` → don’t mix randomly
-* Do NOT commit unnecessary files like `debug.log`
-
----
-
-# 📌 Day 1 Instructions (MANDATORY)
-
-## 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/viveksadhucodes/realestate-lakehouse-project
-cd realestate-lakehouse-project
+    B --> B1[Audit Columns]
+    C --> C1[Cleaned Dimensions]
+    C --> C2[Integrated Fact]
+    D --> D1[KPI Tables and Views]
 ```
 
----
-
-## 2️⃣ Read Before Coding
-
-Read:
-
-* `docs/real_estate_project_plan.pdf`
-* `docs/real_estate_dataset_summary.pdf`
-
-These define:
-
-* dataset structure
-* join keys
-* pipeline flow
-* cleaning rules
-
-If skipped:
-👉 your joins WILL break later
-
----
-
-## 3️⃣ Understand Core Concepts
-
-### Dataset
-
-* 7 tables
-* Central fact table → **transactions**
-
-### Keys
-
-* customer_id
-* property_id
-* agent_id
-* listing_id
-
-### Pipeline Flow
-
-```
-CSV → Bronze → Silver → Gold
-```
-
----
-
-# 🧩 ER Diagram (SOURCE OF TRUTH)
+### Entity Relationship Snapshot
 
 ```mermaid
 erDiagram
-
     TRANSACTIONS {
         string transaction_id PK
         string customer_id FK
@@ -269,132 +174,194 @@ erDiagram
         string customer_id FK
     }
 
-    TRANSACTIONS ||--o{ CUSTOMERS : "belongs to"
-    TRANSACTIONS ||--o{ PROPERTIES : "involves"
-    TRANSACTIONS ||--o{ AGENTS : "handled by"
+    TRANSACTIONS ||--o{ CUSTOMERS : belongs_to
+    TRANSACTIONS ||--o{ PROPERTIES : involves
+    TRANSACTIONS ||--o{ AGENTS : handled_by
 
-    PROPERTIES ||--o{ LISTINGS : "listed as"
-    LISTINGS ||--o{ AGENTS : "managed by"
+    PROPERTIES ||--o{ LISTINGS : listed_as
+    LISTINGS ||--o{ AGENTS : managed_by
 
-    CUSTOMERS ||--o{ INTERACTIONS : "performs"
-    PROPERTIES ||--o{ INTERACTIONS : "receives"
+    CUSTOMERS ||--o{ INTERACTIONS : performs
+    PROPERTIES ||--o{ INTERACTIONS : receives
 
-    CUSTOMERS ||--o{ CUSTOMER_MONTHLY_METRICS : "aggregates"
+    CUSTOMERS ||--o{ CUSTOMER_MONTHLY_METRICS : aggregates
 ```
 
 ---
 
-# 👥 Team Responsibilities
+## Pipeline Implementation
 
-| Member   | Role                    | Files                              |
-| -------- | ----------------------- | ---------------------------------- |
-| Member 1 | Bronze (Ingestion)      | pipeline/bronze, 01_bronze.ipynb   |
-| Member 2 | Silver (Transformation) | pipeline/silver, 02_silver.ipynb   |
-| Member 3 | Gold (Analytics)        | pipeline/gold, 03_gold.ipynb, sql/ |
+### Bronze Layer
+
+Implemented in pipeline/bronze/ingestion.py.
+
+Key features:
+
+- CSV ingestion for each source table
+- Schema print and null analysis
+- Optional duplicate check by primary key
+- Audit columns:
+  - ingestion_time
+  - source_file
+  - layer
+- Delta write as bronze_<table_name>
+- Row-count validation after write
+
+Layer documentation: pipeline/bronze/README.md
+
+### Silver Layer
+
+Implemented in pipeline/silver/transformation.py and orchestrated in Notebooks/02_silver.ipynb.
+
+Key features:
+
+- Entity-level cleaning functions:
+  - clean_transactions
+  - clean_customers
+  - clean_properties
+  - clean_agents
+  - clean_listings
+- Standardization: trim/lowercase and category normalization
+- Derived features: year_month, price_category, property_age, experience_level
+- Controlled deduplication to prevent row explosion
+- Integrated fact build via build_silver_fact
+- Validation suite:
+  - schema checks
+  - null checks
+  - duplicate checks
+  - business-rule checks
+  - join-integrity checks
+
+Silver outputs:
+
+- silver.silver_customers
+- silver.silver_properties
+- silver.silver_agents
+- silver.silver_listings
+- silver.silver_real_estate_fact
+
+Layer documentation: pipeline/silver/README.md
+
+### Gold Layer
+
+Implemented in pipeline/gold/analytics.py and orchestrated in Notebooks/03_gold.ipynb.
+
+Key features:
+
+- KPI-focused transformations on Silver fact
+- Window functions for ranking and cumulative metrics
+- Demand, performance, conversion, and behavioral analytics
+
+Sample KPI functions:
+
+- revenue_by_city
+- monthly_sales
+- top_agents
+- property_demand
+- listing_conversion_rate
+- commission_efficiency
+- market_speed_analysis
+- fastest_selling_category
+
+Layer documentation: pipeline/gold/README.md
 
 ---
 
-# 🔄 Git Integration Workflow (USED IN THIS PROJECT)
+## Notebook Flow
 
-Since Databricks Git integration is available, we follow a **direct Git workflow**.
+Recommended execution sequence:
 
----
+1. Run Notebooks/01_bronze.ipynb
+2. Run Notebooks/02_silver.ipynb
+3. Run Notebooks/03_gold.ipynb
 
-## 🚀 Setup (One-Time)
-
-In Databricks:
-
-* New → **Git Folder**
-* Paste repo URL
-* Authenticate GitHub
-* Clone repository
+This ensures all upstream tables are available before downstream logic runs.
 
 ---
 
-## 🔁 Daily Workflow
+## KPI Outputs
 
-### 1️⃣ Pull Latest Code
+Gold layer KPIs are designed for dashboard consumption and stakeholder reporting.
 
+Main KPI groups:
+
+- Revenue and sales trend KPIs
+- Agent performance and ranking KPIs
+- Listing conversion and market speed KPIs
+- Buyer behavior and premium segment KPIs
+
+Additional SQL-based KPI logic can be maintained in sql/kpi_queries.sql.
+
+---
+
+## How To Run
+
+### 1) Clone Repository
+
+```bash
+git clone https://github.com/viveksadhucodes/realestate-lakehouse-project
+cd realestate-lakehouse-project
 ```
-git pull origin main
-```
+
+### 2) Load Environment
+
+Use Databricks (or compatible Spark environment) with Delta support.
+
+### 3) Execute Notebooks in Order
+
+- Notebooks/01_bronze.ipynb
+- Notebooks/02_silver.ipynb
+- Notebooks/03_gold.ipynb
+
+### 4) Verify Tables
+
+Check Bronze, Silver, and Gold schema outputs and validation sections in the notebooks.
 
 ---
 
-### 2️⃣ Work on Your Layer Only
+## Tech Stack
 
-* Do NOT modify other members’ files
-* Stick to your assigned folder
-
----
-
-### 3️⃣ Commit Changes
-
-```
-git add .
-git commit -m "Silver: implemented cleaning and joins"
-```
+- PySpark
+- Delta Lake
+- SQL
+- Databricks Notebooks
+- Git/GitHub
 
 ---
 
-### 4️⃣ Push Changes
+## Documentation Index
 
-```
-git push origin main
-```
-
----
-
-## ⚠️ Conflict Prevention
-
-* Only ONE person edits a file at a time
-* Always pull before starting work
-* Push at end of session
-* Use meaningful commit messages
+- Root overview: README.md
+- Bronze details: pipeline/bronze/README.md
+- Silver details: pipeline/silver/README.md
+- Gold details: pipeline/gold/README.md
+- SQL KPIs: sql/kpi_queries.sql
 
 ---
 
-# 🧠 Project Execution Plan (Aligned with 5-Day Plan)
+## Team Responsibilities
 
-* Day 1 → Setup + ER + roles
-* Day 2 → Bronze layer
-* Day 3 → Silver layer
-* Day 4 → Gold KPIs + Delta features
-* Day 5 → Full pipeline run + PPT
-
-(Strictly follow plan) 
+| Member | Responsibility | Primary Assets |
+|---|---|---|
+| Member 1 | Bronze ingestion | pipeline/bronze, Notebooks/01_bronze.ipynb |
+| Member 2 | Silver transformation | pipeline/silver, Notebooks/02_silver.ipynb |
+| Member 3 | Gold analytics | pipeline/gold, Notebooks/03_gold.ipynb, sql/ |
 
 ---
 
-# ⚠️ Rules
+## References
 
-* ❌ Do NOT assume column names
-* ❌ Do NOT skip ER diagram
-* ❌ Do NOT break pipeline for others
-* ❌ Do NOT copy blindly
+- docs/real_estate_project_plan.pdf
+- docs/real_estate_dataset_summary.pdf
 
 ---
 
-# 🧠 Goal of Day 1
+## Final Note
 
-* Dataset understanding
-* ER diagram clarity
-* Role assignment
-* Databricks setup
+This project demonstrates the full lifecycle of a lakehouse pipeline:
 
----
+- data ingestion reliability
+- transformation quality and governance
+- business-ready analytics
 
-# 🧨 Final Note
-
-This project is not about writing code fast.
-
-It is about:
-
-* correct pipeline
-* clean transformations
-* clear explanation
-
-If you don’t understand your own pipeline,
-you will get exposed during the viva.
-
----
+The repository is now organized as a complete, handover-ready implementation.
