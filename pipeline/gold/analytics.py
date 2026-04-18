@@ -157,6 +157,7 @@ def fastest_selling_category(df):
 
 def high_value_buyers(df):
     return df.fillna({"income_band": "unknown"}) \
+        .filter(col("income_band") != "unknown") \
         .groupBy("income_band") \
         .agg(
             avg("deal_price").alias("avg_purchase_value"),
@@ -167,7 +168,10 @@ def high_value_buyers(df):
 
 def premium_buyers(df):
     return df.fillna({"income_band": "unknown"}) \
-        .filter(col("property_category") == "high") \
+        .filter(
+            (col("property_category") == "high") &
+            (col("income_band") != "unknown")
+        ) \
         .groupBy("income_band") \
         .agg(
             count("*").alias("premium_purchases"),
