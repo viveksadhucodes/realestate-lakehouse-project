@@ -44,7 +44,7 @@ def clean_transactions(df):
 
 
 # =========================
-# CUSTOMERS
+# CUSTOMERS (FIXED PROPERLY)
 # =========================
 def clean_customers(df):
 
@@ -61,9 +61,32 @@ def clean_customers(df):
 
     df = df.withColumn("home_city", lower(trim(col("home_city")))) \
            .withColumn("segment", lower(trim(col("segment")))) \
-           .withColumn("income_band", lower(trim(col("income_band")))) \
            .withColumn("acquisition_channel", lower(trim(col("acquisition_channel")))) \
            .withColumn("signup_year", year(col("signup_date")))
+
+    # =========================
+    # 🔥 INCOME BAND CLEANING (REAL FIX)
+    # =========================
+    df = df.withColumn(
+        "income_band",
+        when(col("income_band").isNull(), "unknown")
+        .when(trim(col("income_band")) == "", "unknown")
+        .when(lower(trim(col("income_band"))).isin("na", "n/a", "unk", "null"), "unknown")
+        .otherwise(lower(trim(col("income_band"))))
+    )
+
+    # =========================
+    # 🔥 STANDARDIZE VALUES
+    # =========================
+    df = df.withColumn(
+        "income_band",
+        when(col("income_band").isin("low", "lower"), "low")
+        .when(col("income_band").isin("mid", "middle"), "mid")
+        .when(col("income_band").isin("high", "upper"), "high")
+        .when(col("income_band").isin("upper-mid", "upper_mid"), "upper-mid")
+        .when(col("income_band").isin("lower-mid", "lower_mid"), "lower-mid")
+        .otherwise(col("income_band"))
+    )
 
     return df
 
@@ -129,10 +152,10 @@ def clean_agents(df):
 
 
 # =========================
-# LISTINGS (NEW - YOU MISSED THIS)
+# LISTINGS
 # =========================
 from pyspark.sql.window import Window
-from pyspark.sql.functions import row_number, col
+from pyspark.sql.functions import row_number
 
 def clean_listings(df):
 
@@ -143,7 +166,6 @@ def clean_listings(df):
         (col("days_on_market") >= 0)
     )
 
-    # 🔥 Deduplicate by property_id (IMPORTANT FIX)
     window = Window.partitionBy("property_id").orderBy(col("listed_price").desc())
 
     df = df.withColumn("rn", row_number().over(window)) \
@@ -160,17 +182,15 @@ def clean_listings(df):
 
 
 # =========================
-# 🔥 FINAL FACT TABLE
+# FINAL FACT TABLE
 # =========================
 def build_silver_fact(trans, cust, prop, agent, listings):
 
-    # ensure base table is clean
     trans = trans.dropDuplicates(["transaction_id"])
-
     cust = cust.dropDuplicates(["customer_id"])
     prop = prop.dropDuplicates(["property_id"])
     agent = agent.dropDuplicates(["agent_id"])
-    listings = listings.dropDuplicates(["property_id"])  # critical
+    listings = listings.dropDuplicates(["property_id"])
 
     trans = trans.select(
         "transaction_id",
@@ -218,14 +238,12 @@ def build_silver_fact(trans, cust, prop, agent, listings):
         "sold_flag"
     )
 
-    # ✅ CLEAN LEFT JOINS (NO ROW EXPLOSION NOW)
     df = trans \
         .join(cust, "customer_id", "left") \
         .join(prop, "property_id", "left") \
         .join(agent, "agent_id", "left") \
         .join(listings, "property_id", "left")
 
-    # CITY CONSISTENCY
     df = df.withColumn(
         "city_variation_flag",
         when(
@@ -235,8 +253,15 @@ def build_silver_fact(trans, cust, prop, agent, listings):
             1
         ).otherwise(0)
     )
-
-    # 🔥 FINAL SAFETY NET
+    df = df.withColumn(
+        "income_band",
+        when(col("income_band").isNull(), "unknown")
+        .otherwise(col("income_band"))
+    )
     df = df.dropDuplicates(["transaction_id"])
+    df=df.fillna({
+        "agent_city":"unknown"
+    })
+    
 
     return df
