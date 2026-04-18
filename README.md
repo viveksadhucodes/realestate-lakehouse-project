@@ -24,6 +24,16 @@ Project complete. The repository contains:
 - SQL KPI query file
 - Layer-wise documentation
 
+### Delivery Snapshot
+
+| Dimension | Status | Notes |
+|---|---|---|
+| Data Pipeline | Complete | Bronze -> Silver -> Gold implemented |
+| Data Quality | Complete | Validation checks embedded in notebooks |
+| Analytics | Complete | KPI suite in Gold layer |
+| Documentation | Complete | Root + layer-level READMEs |
+| Reproducibility | Complete | Ordered notebook execution path |
+
 ---
 
 ## Quick Navigation
@@ -59,6 +69,13 @@ Business questions addressed include:
 - Agent performance and ranking
 - Listing conversion and market speed
 - Customer purchase behavior and segmentation
+
+### Why This Project Is Production-Oriented
+
+- Clear separation of concerns across Medallion layers
+- Reusable Python modules under pipeline/ for notebook orchestration
+- Explicit quality checks before analytical consumption
+- Structured outputs suitable for BI/dashboard integration
 
 ---
 
@@ -135,6 +152,14 @@ graph LR
     D --> D1[KPI Tables and Views]
 ```
 
+### Layer Contracts
+
+| Layer | Input | Core Processing | Output |
+|---|---|---|---|
+| Bronze | Raw CSV files | Ingestion + audit metadata + basic profiling | bronze_* Delta tables |
+| Silver | Bronze tables | Cleansing, standardization, deduplication, joins | silver_* dimensions + fact |
+| Gold | Silver fact | KPI aggregation, ranking, trend analytics | KPI-ready analytical datasets |
+
 ### Entity Relationship Snapshot
 
 ```mermaid
@@ -190,6 +215,14 @@ erDiagram
 ---
 
 ## Pipeline Implementation
+
+### Technical Highlights
+
+- Modular engineering: transformation logic is isolated from notebook orchestration
+- Deterministic deduplication strategy for stable transaction grain
+- Window functions for ranking and cumulative analytics
+- Business-rule enforcement to protect metric correctness
+- Schema-aware overwrite workflow for iterative development
 
 ### Bronze Layer
 
@@ -267,6 +300,22 @@ Layer documentation: pipeline/gold/README.md
 
 ---
 
+## Data Quality Gates
+
+Quality controls applied during pipeline execution:
+
+| Check Type | Layer | Example |
+|---|---|---|
+| Null validation | Bronze/Silver | Critical key and field-level null checks |
+| Duplicate validation | Bronze/Silver | transaction_id uniqueness verification |
+| Business-rule validation | Silver | commission_amount <= deal_price |
+| Join-integrity validation | Silver | Missing dimension coverage analysis |
+| Temporal sanity checks | Silver | Future-date detection for deal_date |
+
+These checks reduce silent data corruption before analytics are produced.
+
+---
+
 ## Notebook Flow
 
 Recommended execution sequence:
@@ -289,6 +338,16 @@ Main KPI groups:
 - Agent performance and ranking KPIs
 - Listing conversion and market speed KPIs
 - Buyer behavior and premium segment KPIs
+
+### KPI Matrix
+
+| KPI Family | Example Functions | Business Value |
+|---|---|---|
+| Revenue Intelligence | revenue_by_city, monthly_sales, running_revenue | Understand growth and trend direction |
+| Agent Performance | top_agents, agent_ranking, commission_efficiency | Measure sales execution and contribution |
+| Market Dynamics | property_demand, market_speed_analysis, fastest_selling_category | Track demand and liquidity behavior |
+| Customer Behavior | customer_purchase_frequency, buyer_type, high_value_buyers | Segment and target customer profiles |
+| Channel Effectiveness | listing_conversion_rate | Optimize listing channel strategy |
 
 Additional SQL-based KPI logic can be maintained in sql/kpi_queries.sql.
 
@@ -316,6 +375,10 @@ Use Databricks (or compatible Spark environment) with Delta support.
 ### 4) Verify Tables
 
 Check Bronze, Silver, and Gold schema outputs and validation sections in the notebooks.
+
+### 5) Optional SQL Analysis
+
+Use sql/kpi_queries.sql for additional KPI slicing and reporting workflows.
 
 ---
 
@@ -365,3 +428,10 @@ This project demonstrates the full lifecycle of a lakehouse pipeline:
 - business-ready analytics
 
 The repository is now organized as a complete, handover-ready implementation.
+
+### Next Technical Enhancements
+
+- Add automated data tests for critical table contracts
+- Add orchestration (scheduled jobs/workflows) for periodic refresh
+- Add KPI versioning and benchmark tracking
+- Add CI checks for notebook and module consistency
